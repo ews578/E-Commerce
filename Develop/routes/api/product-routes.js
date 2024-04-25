@@ -4,15 +4,31 @@ const { Product, Category, Tag, ProductTag } = require('../../models');
 // The `/api/products` endpoint
 
 // get all products
-router.get('/', (req, res) => {
-  // find all products
-  // be sure to include its associated Category and Tag data
+// find all products
+// be sure to include its associated Category and Tag data
+router.get('/', async (req, res) => {
+  try {
+    const productAll = await Product.findAll({
+      include: [{ model: Category}, {model: Tag}]
+    });
+    res.status(200).json(productAll);
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 
 // get one product
-router.get('/:id', (req, res) => {
-  // find a single product by its `id`
-  // be sure to include its associated Category and Tag data
+// find a single product by its `id`
+// be sure to include its associated Category and Tag data
+router.get('/:id', async (req, res) => {
+  try{
+    const productOne = await Product.findByPk(req.params.id, {
+      include: [{ model: Category}, {model: Tag}]
+    });
+    res.status(200).json(productOne);
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 
 // create new product
@@ -28,7 +44,7 @@ router.post('/', (req, res) => {
   Product.create(req.body)
     .then((product) => {
       // if there's product tags, we need to create pairings to bulk create in the ProductTag model
-      if (req.body.tagIds.length) {
+      if (req.body.tagIds?.length) {
         const productTagIdArr = req.body.tagIds.map((tag_id) => {
           return {
             product_id: product.id,
@@ -92,8 +108,24 @@ router.put('/:id', (req, res) => {
     });
 });
 
-router.delete('/:id', (req, res) => {
-  // delete one product by its `id` value
+// delete one product by its `id` value
+router.delete('/:id', async (req, res) => {
+  try {
+    const productDelete = await Product.destroy({
+      where: { id: req.params.id }
+    });
+
+    if (productDelete === 0) {
+      res.status(404).json({ message: 'Product Not Found' });
+      return;
+    }
+    res.status(200).json({ message: 'Great Success! Rroduct Deleted!' });
+
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json(err);
+  }
 });
 
 module.exports = router;
