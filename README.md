@@ -22,6 +22,9 @@
 
 
   ## Usage
+  screenshot of application 
+  ![alt text](</Develop/assets/ecommerce.png>)
+
   
   here is a link to my git hub 
   https://github.com/ews578/E-Commerce
